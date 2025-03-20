@@ -1,5 +1,5 @@
 export default {
-  async fetch(request) {
+  async fetch(request, env) {
     const url = new URL(request.url);
     const imageUrl = url.searchParams.get("url");
     const tool = url.searchParams.get("tool");
@@ -17,8 +17,8 @@ export default {
     };
 
     const apiKey = {
-      removebg: "YOUR_REMOVEBG_API_KEY",
-      deepai: "YOUR_DEEPAI_API_KEY"
+      removebg: env.REMOVEBG_API_KEY,
+      deepai: env.DEEPAI_API_KEY
     };
 
     if (!apiEndpoints[tool]) {
@@ -28,14 +28,14 @@ export default {
     try {
       let apiUrl = apiEndpoints[tool];
       let headers = {};
-      let body = {};
+      let body = new URLSearchParams();
 
       if (tool === "removebg") {
         headers["X-Api-Key"] = apiKey.removebg;
-        body = new URLSearchParams({ image_url: imageUrl });
+        body.append("image_url", imageUrl);
       } else {
         headers["api-key"] = apiKey.deepai;
-        body = new URLSearchParams({ image: imageUrl });
+        body.append("image", imageUrl);
       }
 
       const apiResponse = await fetch(apiUrl, {
